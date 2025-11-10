@@ -4,3 +4,5 @@ header3 = { "###" ~ " " ~ (!"\n" ~ ANY)+ }
 bold = { "**" ~ (!"**" ~ ANY)+ ~ "**" }
 italic = { "*" ~ (!"*" ~ ANY)+ ~ "*" }
 quote = { ">" ~ " " ~ (!NEWLINE ~ ANY)+ }
+unord_list = { (("- " | "* " | "+ ") ~ (!NEWLINE ~ ANY)+ ~ NEWLINE?)+ }
+ord_list = { (ASCII_DIGIT+ ~ ". " ~ (!NEWLINE ~ ANY)+ ~ NEWLINE?)+ }
