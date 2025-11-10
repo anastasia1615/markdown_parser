@@ -34,4 +34,22 @@ mod tests {
         assert!(MarkdownParser::parse(Rule::header3, "## Yo").is_err());
         Ok(())
     }
+    #[test]
+    fn int_bold() -> anyhow::Result<()>{
+        let mut got = MarkdownParser::parse(Rule::bold, "**a big bold beautiful journey**")?;
+        let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
+        assert_eq!(got.as_str(), "**a big bold beautiful journey**");
+        assert!(MarkdownParser::parse(Rule::bold, "**").is_err());
+        assert!(MarkdownParser::parse(Rule::bold, "bold").is_err());
+        Ok(())
+    }
+    #[test]
+    fn int_italic() -> anyhow::Result<()> {
+        let mut got = MarkdownParser::parse(Rule::italic, "*sono fuori di testa*")?;
+        let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
+        assert_eq!(got.as_str(), "*sono fuori di testa*");
+        assert!(MarkdownParser::parse(Rule::italic, "*").is_err());
+        assert!(MarkdownParser::parse(Rule::italic, "ciao").is_err());
+        Ok(())
+    }
 }
