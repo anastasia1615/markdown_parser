@@ -3,3 +3,4 @@ header2 = { "##" ~ " " ~ (!"\n" ~ ANY)+ }
 header3 = { "###" ~ " " ~ (!"\n" ~ ANY)+ }
 bold = { "**" ~ (!"**" ~ ANY)+ ~ "**" }
 italic = { "*" ~ (!"*" ~ ANY)+ ~ "*" }
+quote = { ">" ~ " " ~ (!NEWLINE ~ ANY)+ }

@@ -17,6 +17,9 @@ fn main() -> anyhow::Result<()> {
     let input5 = "*o partigiano portami via*";
     let parsed5 = MarkdownParser::parse(Rule::italic, input5)?;
     println!("{:#?}", parsed5);
+    let input6 = "> So, I simply switched over to wine because it was not carbonated.";
+    let parsed6 = MarkdownParser::parse(Rule::quote, input6)?;
+    println!("{:#?}", parsed6);
     Ok(())
 }
 #[test]
@@ -55,6 +58,14 @@ fn bold() {
 fn italic() {
     let input = "*My own summer*";
     let result = MarkdownParser::parse(Rule::italic, input);
+    assert!(result.is_ok());
+    let pair = result.unwrap().next().unwrap();
+    assert_eq!(pair.as_str(), input);
+}
+#[test]
+fn quote() {
+    let input = "> Xerces";
+    let result = MarkdownParser::parse(Rule::quote, input);
     assert!(result.is_ok());
     let pair = result.unwrap().next().unwrap();
     assert_eq!(pair.as_str(), input);

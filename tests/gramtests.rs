@@ -52,4 +52,13 @@ mod tests {
         assert!(MarkdownParser::parse(Rule::italic, "ciao").is_err());
         Ok(())
     }
+    #[test]
+    fn int_quote() -> anyhow::Result<()> {
+        let mut got = MarkdownParser::parse(Rule::quote, "> So I don't cry anymore, I just beat people up. It's a lot more fun.")?;
+        let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
+        assert_eq!(got.as_str(), "> So I don't cry anymore, I just beat people up. It's a lot more fun.");
+        assert!(MarkdownParser::parse(Rule::quote, ">").is_err());
+        assert!(MarkdownParser::parse(Rule::quote, "in her place one hundred candles burning").is_err());
+        Ok(())
+    }
 }
