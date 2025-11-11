@@ -62,6 +62,15 @@ mod tests {
         Ok(())
     }
     #[test]
+    fn int_boit() -> anyhow::Result<()> {
+        let mut got = MarkdownParser::parse(Rule::boit, "*** Band of agony and despair ***")?;
+        let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
+        assert_eq!(got.as_str(), "*** Band of agony and despair ***");
+        assert!(MarkdownParser::parse(Rule::boit, "**").is_err());
+        assert!(MarkdownParser::parse(Rule::boit, "* text").is_err());
+        Ok(())
+    }
+    #[test]
     fn int_unord() -> anyhow::Result<()> {
         let input = r#"- MK 1
 - Down Is the New Up
@@ -88,7 +97,7 @@ mod tests {
         Ok(())
     }
     #[test]
-    fn ord_list_integration() -> anyhow::Result<()> {
+    fn int_ord() -> anyhow::Result<()> {
     let input = r#"1. 2 + 2 = 5
 2. Sit Down. Stand Up.
 3. Sail to the Moon.
@@ -122,5 +131,59 @@ mod tests {
     assert!(MarkdownParser::parse(Rule::ord_list, "1.").is_err());
     assert!(MarkdownParser::parse(Rule::ord_list, "Hello").is_err());
     Ok(())
+    }
+    #[test]
+    fn int_code() -> anyhow::Result<()> {
+        let mut got = MarkdownParser::parse(Rule::code,"`println!(\"hello world!\");`",)?;
+        let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
+        assert_eq!(got.as_str(), "`println!(\"hello world!\");`");
+        assert!(MarkdownParser::parse(Rule::code, "`").is_err());
+        assert!(MarkdownParser::parse(Rule::code, "println!(\"goodbye world!\");").is_err());
+        Ok(())
+    }
+    #[test]
+    fn int_link() -> anyhow::Result<()> {
+        let mut got = MarkdownParser::parse(Rule::link, "[i fweaking love radiohead](https://open.spotify.com/track/3oOHf32BT7dkzI4tAfNZun?si=f0a4de3cbe7a41bb)")?;
+        let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
+        assert_eq!(got.as_str(), "[i fweaking love radiohead](https://open.spotify.com/track/3oOHf32BT7dkzI4tAfNZun?si=f0a4de3cbe7a41bb)");
+        assert!(MarkdownParser::parse(Rule::link, "[description]").is_err());
+        assert!(MarkdownParser::parse(Rule::link, "(just link)").is_err());
+        Ok(())
+    }
+    #[test]
+    fn int_img() -> anyhow::Result<()> {
+        let mut got = MarkdownParser::parse(Rule::img, "![literally me](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQc2SzjhiHSE9z3MyvTY4wPNeup5zDJw4LLyA&s)")?;
+        let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
+        assert_eq!(got.as_str(), "![literally me](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQc2SzjhiHSE9z3MyvTY4wPNeup5zDJw4LLyA&s)");
+        assert!(MarkdownParser::parse(Rule::img, "![description]").is_err());
+        assert!(MarkdownParser::parse(Rule::img, "(just link)").is_err());
+        Ok(())
+    }
+    #[test]
+    fn int_horisontal() -> anyhow::Result<()> {
+        let mut got = MarkdownParser::parse(Rule::hor_line, "---")?;
+        let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
+        assert_eq!(got.as_str(), "---");
+        assert!(MarkdownParser::parse(Rule::hor_line, "--").is_err());
+        assert!(MarkdownParser::parse(Rule::hor_line, "__").is_err());
+        Ok(())
+    }
+    #[test]
+    fn int_new() -> anyhow::Result<()> {
+        let mut got = MarkdownParser::parse(Rule::new, "\n")?;
+        let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
+        assert_eq!(got.as_str(), "\n");
+        assert!(MarkdownParser::parse(Rule::new, " ").is_err());
+        assert!(MarkdownParser::parse(Rule::new, "letters").is_err());
+        Ok(())
+    }
+    #[test]
+    fn int_par() -> anyhow::Result<()> {
+        let mut got = MarkdownParser::parse(Rule::paragraph, "The mongril cat came home holding half a head")?;
+        let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
+        assert_eq!(got.as_str(), "The mongril cat came home holding half a head");
+        assert!(MarkdownParser::parse(Rule::paragraph, "\n").is_err());
+        assert!(MarkdownParser::parse(Rule::paragraph, "").is_err());
+        Ok(())
     }
 }
