@@ -142,6 +142,23 @@ mod tests {
         Ok(())
     }
     #[test]
+    fn int_codebl() -> anyhow::Result<()> {
+        let mut got = MarkdownParser::parse(Rule::codebl,"```rust
+fn talk_show_host() {
+    println!(\"I want to, I want to be someone else or I'll explode\");
+}
+```",)?;
+        let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
+        assert_eq!(got.as_str(), "```rust
+fn talk_show_host() {
+    println!(\"I want to, I want to be someone else or I'll explode\");
+}
+```");
+        assert!(MarkdownParser::parse(Rule::codebl, "`").is_err());
+        assert!(MarkdownParser::parse(Rule::codebl, "println!(\"floating upon the surface for the birds\");").is_err());
+        Ok(())
+    }
+    #[test]
     fn int_link() -> anyhow::Result<()> {
         let mut got = MarkdownParser::parse(Rule::link, "[i fweaking love radiohead](https://open.spotify.com/track/3oOHf32BT7dkzI4tAfNZun?si=f0a4de3cbe7a41bb)")?;
         let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
@@ -186,4 +203,77 @@ mod tests {
         assert!(MarkdownParser::parse(Rule::paragraph, "").is_err());
         Ok(())
     }
+    #[test]
+fn int_doc() -> anyhow::Result<()> {
+    let mut got = MarkdownParser::parse(Rule::doc, r#"# The description of how I love Radiohead
+## Radiohead is an English rock band
+### years active: 1985 - now
+
+Radiohead are ***legends***. Their music is *unique* how i wish I could go to their **tour in Europe**
+
+> "And I know I'm paranoid and neurotic, I've made a career out of it." – Thom Yorke
+
+- Thom Yorke
+- Jonny Greenwood
+- Colin Greenwood
+- Ed O'Brien
+- Philip Selway
+
+1. Paranoid Android
+2. Karma Police
+3. No Surprises
+4. Everything In Its Right Place
+5. Pyramid Song
+
+[Hail To The Thief](https://open.spotify.com/album/5mzoI3VH0ZWk1pLFR6RoYy?si=IP3KJ4q7SwG1oyh518zV0w)
+
+![Radiohead members](https://media.pitchfork.com/photos/592c542a5e6ef95969326a0d/2:1/w_2560%2Cc_limit/e6c3e81d.jpg)
+
+---
+
+`println!("favourite band of all time");`
+
+```rust
+fn main() {
+    let band = "Radiohead";
+    println!("I love {}", band);
+}
+"#)?;
+        let got = got.next().ok_or_else(|| anyhow::anyhow!("No pairs"))?;
+        assert_eq!(got.as_str(), r#"# The description of how I love Radiohead
+## Radiohead is an English rock band
+### years active: 1985 - now
+
+Radiohead are ***legends***. Their music is *unique* how i wish I could go to their **tour in Europe**
+
+> "And I know I'm paranoid and neurotic, I've made a career out of it." – Thom Yorke
+
+- Thom Yorke
+- Jonny Greenwood
+- Colin Greenwood
+- Ed O'Brien
+- Philip Selway
+
+1. Paranoid Android
+2. Karma Police
+3. No Surprises
+4. Everything In Its Right Place
+5. Pyramid Song
+
+[Hail To The Thief](https://open.spotify.com/album/5mzoI3VH0ZWk1pLFR6RoYy?si=IP3KJ4q7SwG1oyh518zV0w)
+
+![Radiohead members](https://media.pitchfork.com/photos/592c542a5e6ef95969326a0d/2:1/w_2560%2Cc_limit/e6c3e81d.jpg)
+
+---
+
+`println!("favourite band of all time");`
+
+```rust
+fn main() {
+    let band = "Radiohead";
+    println!("I love {}", band);
+}
+"#);
+        Ok(())
+        }
 }

@@ -1,68 +1,50 @@
+use std::fs;
+use anyhow::Result;
 use markdown_parser::*;
 use pest::Parser;
-
-fn main() -> anyhow::Result<()> {
-    let input1 = "# It's a funny thing, when you talk to God, you're religious, but when he talks to you, you're a psychopath.";
-    let parsed1 = MarkdownParser::parse(Rule::header1, input1)?;
-    println!("{:#?}", parsed1);
-    let input2 = "## Instead of slashing my wrists, I just write a bunch of really crummy songs.";
-    let parsed2 = MarkdownParser::parse(Rule::header2, input2)?;
-    println!("{:#?}", parsed2);
-    let input3 = "### We're the only species who hunts for sport.";
-    let parsed3 = MarkdownParser::parse(Rule::header3, input3)?;
-    println!("{:#?}", parsed3);
-    let input4 = "**Bloody Kisses**";
-    let parsed4 = MarkdownParser::parse(Rule::bold, input4)?;
-    println!("{:#?}", parsed4);
-    let input5 = "*Oye como va mi ritmo, bueno pa gosar mulata*";
-    let parsed5 = MarkdownParser::parse(Rule::italic, input5)?;
-    println!("{:#?}", parsed5);
-    let input5 = "*Oye como va mi ritmo, bueno pa gosar mulata*";
-    let parsed5 = MarkdownParser::parse(Rule::italic, input5)?;
-    println!("{:#?}", parsed5);
-    let input6 = "> I'm a big fan of the effects of alcohol.";
-    let parsed6 = MarkdownParser::parse(Rule::quote, input6)?;
-    println!("{:#?}", parsed6);
-    let input7 = "*** August 17, 1993 ***";
-    let parsed7 = MarkdownParser::parse(Rule::boit, input7)?;
-    println!("{:#?}", parsed7);
-    let input8 = r#"- Anesthesia
-- Christian Woman
-- Love You to Death
-- Kill You Tonight
-- The Profit of Doom
-- September Sun"#;
-    let parsed8 = MarkdownParser::parse(Rule::unord_list, input8)?;
-    println!("{:#?}", parsed8);
-    let input9 = r#"1. Christian Woman
-2. Bloody Kisses
-3. Too Late: Frozen
-4. Blood & Fire
-5. Can't Lose You
-6. Summer Breeze
-7. Set Me on Fire
-8. Suspended in Dusk
-9. Black No.1"#;
-    let parsed9 = MarkdownParser::parse(Rule::ord_list, input9)?;
-    println!("{:#?}", parsed9);
-    let input10 = "`let mut x = 10;`";
-    let parsed10 = MarkdownParser::parse(Rule::code, input10)?;
-    println!("{:#?}", parsed10);
-    let input11 = "[i dare you to listen to it if you actually read it](https://open.spotify.com/track/5mSEGxrMVHBXkyU7aThjrw?si=40516d7417bf4f79)";
-    let parsed11 = MarkdownParser::parse(Rule::link, input11)?;
-    println!("{:#?}", parsed11);
-    let input12 = "![i believe in god](https://64.media.tumblr.com/d2f312b1cb21158ae583d1f95d5e4bc2/6ce41997e6fa4c16-f7/s1280x1920/8f8990223e4b3abb2b214e8c61db3baeb9530642.jpg)";
-    let parsed12 = MarkdownParser::parse(Rule::img, input12)?;
-    println!("{:#?}", parsed12);
-    let input13 = "***";
-    let parsed13 = MarkdownParser::parse(Rule::hor_line, input13)?;
-    println!("{:#?}", parsed13);
-    let input14 = "\n";
-    let parsed14 = MarkdownParser::parse(Rule::new, input14)?;
-    println!("{:#?}", parsed14);
-    let input15 = "She is in love with herself, She likes the dark";
-    let parsed15 = MarkdownParser::parse(Rule::paragraph, input15)?;
-    println!("{:#?}", parsed15);
+fn help() {
+    println!("markdown parser");
+    println!("how to use:");
+    println!("parse <file> - parse a file");
+    println!("help - this message again");
+    println!("credits - author info");
+    println!("to call a command, write");
+    println!("cargo run -- command");
+    println!("to parse a file, write");
+    println!("cargo run -- parse filename.md ");
+}
+fn credits() {
+    println!("markdown parser");
+    println!("by Anastasiia Pokormiak");
+}
+fn parse_file(file_path: &str) -> Result<()> {
+    let input_file = fs::read_to_string(file_path)?;
+    let parsed = MarkdownParser::parse(Rule::doc, &input_file)?;
+    println!("{:#?}", parsed);
+    Ok(())
+}
+fn main() -> Result<()> {
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() < 2 {
+        help();
+        return Ok(());
+    }
+    let com = &args[1];
+    if com == "help" {
+        help();
+    } else if com == "credits" {
+        credits();
+    } else if com == "parse" {
+        if args.len() < 3 {
+            eprintln!("no file");
+            help();
+            return Ok(());
+        }
+        parse_file(&args[2])?;
+    } else {
+        eprintln!("try again it's not valid : {}", com);
+        help();
+    }
     Ok(())
 }
 #[test]
@@ -159,8 +141,19 @@ fn code() {
     assert_eq!(pair.as_str(), input);
 }
 #[test]
+fn codebl() {
+    let input = "```rust
+fn rosemary() {
+    println!(\"There's no sound, but the engine's drone\");
+```";
+    let result = MarkdownParser::parse(Rule::codebl, input);
+    assert!(result.is_ok());
+    let pair = result.unwrap().next().unwrap();
+    assert_eq!(pair.as_str(), input);
+}
+#[test]
 fn link() {
-    let input = "[one of the best tracks of 2025 imho](https://open.spotify.com/track/2uXxooVssBJB8Llk2dB5kf?si=1fcdb8b947eb4334)";
+    let input = "[i dare you to listen to this song if you actually read it](https://open.spotify.com/track/2uXxooVssBJB8Llk2dB5kf?si=1fcdb8b947eb4334)";
     let result = MarkdownParser::parse(Rule::link, input);
     assert!(result.is_ok());
     let pair = result.unwrap().next().unwrap();
@@ -197,4 +190,45 @@ fn paragraph() {
     assert!(result.is_ok());
     let pair = result.unwrap().next().unwrap();
     assert_eq!(pair.as_str(), input);
+}
+#[test]
+fn test_deftones_doc() {
+    let input = r#"# The description of how I love Deftones
+## Deftones is an American alternative metal band
+### years active: 1988 - now
+
+Deftones are just like ***Radiohead*** but for those who have *sex* **lol**
+
+> "Old Korn records had so much intensity." – Chino Moreno
+
+- Chino Moreno
+- Stephen Carpenter
+- Abe Cunningham
+- Frank Delgado
+- Sergio Vega
+
+1. Change (In the House of Flies)
+2. My Own Summer (Shove It)
+3. Digital Bath
+4. Be Quiet and Drive (Far Away)
+5. Diamond Eyes
+
+Listen to their album [White Pony](https://open.spotify.com/album/1DP3I0S7U3jN6wqftoQcQ3?si=8zZ1NbxSSiGz4W9GjaXDTg)
+
+![Deftones live in concert](https://upload.wikimedia.org/wikipedia/commons/0/0a/Deftones_live_2013.jpg)
+
+---
+
+`println!("I adore my music taste");`
+
+```rust
+fn main() {
+    let band = "Deftones";
+    println!("I love {}", band);
+}
+"#;
+    let result = MarkdownParser::parse(Rule::doc, input);
+    assert!(result.is_ok());
+    let pair = result.unwrap().next().unwrap();
+    assert_eq!(pair.as_str(), input)
 }
