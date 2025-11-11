@@ -2,6 +2,7 @@
 name = "markdown_parser"
 version = "0.1.0"
 edition = "2024"
+description = "парсер, що обробляє синтаксис Markdown, а саме заголовки трьох рівнів, жирний шрифт, курсив, жирний+курсив, нумеровані і ненумеровані списки, цитати, код, лінки, зображення та горизонтальні лінії. джерело: https://www.markdownguide.org/cheat-sheet/ "
 
 [dependencies]
 anyhow = "1.0.100"
