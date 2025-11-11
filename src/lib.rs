@@ -9,7 +9,7 @@ pub enum MarkdownError {
     #[error("read: failed: {0}")]
     FileReadError(#[from] std::io::Error),
     #[error("parse: failed: {0}")]
-    ParseError(#[from] pest::error::Error<Rule>),
+    ParseError(#[from] Box<pest::error::Error<Rule>>),
     #[error("input: failed: {0}")]
     InvalidInput(String),
 }

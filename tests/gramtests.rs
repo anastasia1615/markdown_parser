@@ -54,11 +54,23 @@ mod tests {
     }
     #[test]
     fn int_quote() -> anyhow::Result<()> {
-        let mut got = MarkdownParser::parse(Rule::quote, "> I'm not afraid of computers taking over the world. They're just sitting there. I can hit them with a two by four.")?;
+        let mut got = MarkdownParser::parse(
+            Rule::quote,
+            "> I'm not afraid of computers taking over the world. They're just sitting there. I can hit them with a two by four.",
+        )?;
         let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
-        assert_eq!(got.as_str(), "> I'm not afraid of computers taking over the world. They're just sitting there. I can hit them with a two by four.");
+        assert_eq!(
+            got.as_str(),
+            "> I'm not afraid of computers taking over the world. They're just sitting there. I can hit them with a two by four."
+        );
         assert!(MarkdownParser::parse(Rule::quote, ">").is_err());
-        assert!(MarkdownParser::parse(Rule::quote, "So I don't cry anymore, I just beat people up. It's a lot more fun.").is_err());
+        assert!(
+            MarkdownParser::parse(
+                Rule::quote,
+                "So I don't cry anymore, I just beat people up. It's a lot more fun."
+            )
+            .is_err()
+        );
         Ok(())
     }
     #[test]
@@ -84,21 +96,22 @@ mod tests {
         let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
         assert_eq!(
             got.as_str(),
-        "- MK 1
+            "- MK 1
 - Down Is the New Up
 - Go Slowly
 - MK 2
 - Last Flowers
 - Up on the Ladder
 - Bangers + Mash
-- 4 Minute Warning");
+- 4 Minute Warning"
+        );
         assert!(MarkdownParser::parse(Rule::unord_list, "1.").is_err());
         assert!(MarkdownParser::parse(Rule::unord_list, "MK 1").is_err());
         Ok(())
     }
     #[test]
     fn int_ord() -> anyhow::Result<()> {
-    let input = r#"1. 2 + 2 = 5
+        let input = r#"1. 2 + 2 = 5
 2. Sit Down. Stand Up.
 3. Sail to the Moon.
 4. Backdrifts.
@@ -112,9 +125,11 @@ mod tests {
 12. Myxomatosis.
 13. Scatterbrain.
 14. A Wolf at the Door."#;
-    let mut got = MarkdownParser::parse(Rule::ord_list, input)?;
-    let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
-    assert_eq!(got.as_str(), "1. 2 + 2 = 5
+        let mut got = MarkdownParser::parse(Rule::ord_list, input)?;
+        let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
+        assert_eq!(
+            got.as_str(),
+            "1. 2 + 2 = 5
 2. Sit Down. Stand Up.
 3. Sail to the Moon.
 4. Backdrifts.
@@ -127,14 +142,15 @@ mod tests {
 11. A Punchup at a Wedding.
 12. Myxomatosis.
 13. Scatterbrain.
-14. A Wolf at the Door.");
-    assert!(MarkdownParser::parse(Rule::ord_list, "1.").is_err());
-    assert!(MarkdownParser::parse(Rule::ord_list, "Hello").is_err());
-    Ok(())
+14. A Wolf at the Door."
+        );
+        assert!(MarkdownParser::parse(Rule::ord_list, "1.").is_err());
+        assert!(MarkdownParser::parse(Rule::ord_list, "Hello").is_err());
+        Ok(())
     }
     #[test]
     fn int_code() -> anyhow::Result<()> {
-        let mut got = MarkdownParser::parse(Rule::code,"`println!(\"hello world!\");`",)?;
+        let mut got = MarkdownParser::parse(Rule::code, "`println!(\"hello world!\");`")?;
         let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
         assert_eq!(got.as_str(), "`println!(\"hello world!\");`");
         assert!(MarkdownParser::parse(Rule::code, "`").is_err());
@@ -143,35 +159,59 @@ mod tests {
     }
     #[test]
     fn int_codebl() -> anyhow::Result<()> {
-        let mut got = MarkdownParser::parse(Rule::codebl,"```rust
+        let mut got = MarkdownParser::parse(
+            Rule::codebl,
+            "```rust
 fn talk_show_host() {
     println!(\"I want to, I want to be someone else or I'll explode\");
 }
-```",)?;
+```",
+        )?;
         let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
-        assert_eq!(got.as_str(), "```rust
+        assert_eq!(
+            got.as_str(),
+            "```rust
 fn talk_show_host() {
     println!(\"I want to, I want to be someone else or I'll explode\");
 }
-```");
+```"
+        );
         assert!(MarkdownParser::parse(Rule::codebl, "`").is_err());
-        assert!(MarkdownParser::parse(Rule::codebl, "println!(\"floating upon the surface for the birds\");").is_err());
+        assert!(
+            MarkdownParser::parse(
+                Rule::codebl,
+                "println!(\"floating upon the surface for the birds\");"
+            )
+            .is_err()
+        );
         Ok(())
     }
     #[test]
     fn int_link() -> anyhow::Result<()> {
-        let mut got = MarkdownParser::parse(Rule::link, "[i fweaking love radiohead](https://open.spotify.com/track/3oOHf32BT7dkzI4tAfNZun?si=f0a4de3cbe7a41bb)")?;
+        let mut got = MarkdownParser::parse(
+            Rule::link,
+            "[i fweaking love radiohead](https://open.spotify.com/track/3oOHf32BT7dkzI4tAfNZun?si=f0a4de3cbe7a41bb)",
+        )?;
         let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
-        assert_eq!(got.as_str(), "[i fweaking love radiohead](https://open.spotify.com/track/3oOHf32BT7dkzI4tAfNZun?si=f0a4de3cbe7a41bb)");
+        assert_eq!(
+            got.as_str(),
+            "[i fweaking love radiohead](https://open.spotify.com/track/3oOHf32BT7dkzI4tAfNZun?si=f0a4de3cbe7a41bb)"
+        );
         assert!(MarkdownParser::parse(Rule::link, "[description]").is_err());
         assert!(MarkdownParser::parse(Rule::link, "(just link)").is_err());
         Ok(())
     }
     #[test]
     fn int_img() -> anyhow::Result<()> {
-        let mut got = MarkdownParser::parse(Rule::img, "![literally me](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQc2SzjhiHSE9z3MyvTY4wPNeup5zDJw4LLyA&s)")?;
+        let mut got = MarkdownParser::parse(
+            Rule::img,
+            "![literally me](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQc2SzjhiHSE9z3MyvTY4wPNeup5zDJw4LLyA&s)",
+        )?;
         let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
-        assert_eq!(got.as_str(), "![literally me](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQc2SzjhiHSE9z3MyvTY4wPNeup5zDJw4LLyA&s)");
+        assert_eq!(
+            got.as_str(),
+            "![literally me](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQc2SzjhiHSE9z3MyvTY4wPNeup5zDJw4LLyA&s)"
+        );
         assert!(MarkdownParser::parse(Rule::img, "![description]").is_err());
         assert!(MarkdownParser::parse(Rule::img, "(just link)").is_err());
         Ok(())
@@ -196,16 +236,24 @@ fn talk_show_host() {
     }
     #[test]
     fn int_par() -> anyhow::Result<()> {
-        let mut got = MarkdownParser::parse(Rule::paragraph, "The mongril cat came home holding half a head")?;
+        let mut got = MarkdownParser::parse(
+            Rule::paragraph,
+            "The mongril cat came home holding half a head",
+        )?;
         let got = got.next().ok_or_else(|| anyhow!("No pairs"))?;
-        assert_eq!(got.as_str(), "The mongril cat came home holding half a head");
+        assert_eq!(
+            got.as_str(),
+            "The mongril cat came home holding half a head"
+        );
         assert!(MarkdownParser::parse(Rule::paragraph, "\n").is_err());
         assert!(MarkdownParser::parse(Rule::paragraph, "").is_err());
         Ok(())
     }
     #[test]
-fn int_doc() -> anyhow::Result<()> {
-    let mut got = MarkdownParser::parse(Rule::doc, r#"# The description of how I love Radiohead
+    fn int_doc() -> anyhow::Result<()> {
+        let mut got = MarkdownParser::parse(
+            Rule::doc,
+            r#"# The description of how I love Radiohead
 ## Radiohead is an English rock band
 ### years active: 1985 - now
 
@@ -238,9 +286,12 @@ fn main() {
     let band = "Radiohead";
     println!("I love {}", band);
 }
-"#)?;
+"#,
+        )?;
         let got = got.next().ok_or_else(|| anyhow::anyhow!("No pairs"))?;
-        assert_eq!(got.as_str(), r#"# The description of how I love Radiohead
+        assert_eq!(
+            got.as_str(),
+            r#"# The description of how I love Radiohead
 ## Radiohead is an English rock band
 ### years active: 1985 - now
 
@@ -273,7 +324,8 @@ fn main() {
     let band = "Radiohead";
     println!("I love {}", band);
 }
-"#);
+"#
+        );
         Ok(())
-        }
+    }
 }

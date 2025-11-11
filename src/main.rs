@@ -1,14 +1,14 @@
-use std::fs;
 use anyhow::Result;
 use markdown_parser::*;
 use pest::Parser;
+use std::fs;
 use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum CliError {
     #[error("file error: {0}")]
     FileError(#[from] std::io::Error),
     #[error("parse error: {0}")]
-    ParseError(#[from] pest::error::Error<Rule>),
+    ParseError(#[from] Box<pest::error::Error<Rule>>),
     #[error("invalid command: {0}")]
     InvalidCommand(String),
 }
@@ -29,7 +29,8 @@ fn credits() {
 }
 fn parse_file(file_path: &str) -> Result<(), CliError> {
     let input_file = fs::read_to_string(file_path)?;
-    let parsed = MarkdownParser::parse(Rule::doc, &input_file)?;
+    let parsed = MarkdownParser::parse(Rule::doc, &input_file)
+        .map_err(|e| CliError::ParseError(Box::new(e)))?;
     println!("{:#?}", parsed);
     Ok(())
 }
@@ -170,7 +171,8 @@ fn link() {
 }
 #[test]
 fn img() {
-    let input = "![also me](https://i.pinimg.com/474x/87/de/91/87de91d21ac023ac11c553eab9ceb0f4.jpg)";
+    let input =
+        "![also me](https://i.pinimg.com/474x/87/de/91/87de91d21ac023ac11c553eab9ceb0f4.jpg)";
     let result = MarkdownParser::parse(Rule::img, input);
     assert!(result.is_ok());
     let pair = result.unwrap().next().unwrap();
@@ -201,7 +203,7 @@ fn paragraph() {
     assert_eq!(pair.as_str(), input);
 }
 #[test]
-fn test_deftones_doc() {
+fn doc() {
     let input = r#"# The description of how I love Deftones
 ## Deftones is an American alternative metal band
 ### years active: 1988 - now
