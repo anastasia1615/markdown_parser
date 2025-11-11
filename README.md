@@ -5,8 +5,6 @@
 ![фотка main.rs](image.png)
 ## Grammar & Parsing
 
-The parser uses `pest` grammar rules to recognize Markdown syntax. The table below shows each Markdown element, an example, and the corresponding grammar rule:
-
 | Markdown               | Example                                   | pest                 |
 |------------------------|-------------------------------------------|----------------------|
 | Header 1               | `# first`                                 | `header1`            |
