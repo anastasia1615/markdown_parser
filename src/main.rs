@@ -2,6 +2,16 @@ use std::fs;
 use anyhow::Result;
 use markdown_parser::*;
 use pest::Parser;
+use thiserror::Error;
+#[derive(Error, Debug)]
+pub enum CliError {
+    #[error("file error: {0}")]
+    FileError(#[from] std::io::Error),
+    #[error("parse error: {0}")]
+    ParseError(#[from] pest::error::Error<Rule>),
+    #[error("invalid command: {0}")]
+    InvalidCommand(String),
+}
 fn help() {
     println!("markdown parser");
     println!("how to use:");
@@ -15,15 +25,15 @@ fn help() {
 }
 fn credits() {
     println!("markdown parser");
-    println!("by Anastasiia Pokormiak");
+    println!("by Anastasiia Pokormiak, CS-2");
 }
-fn parse_file(file_path: &str) -> Result<()> {
+fn parse_file(file_path: &str) -> Result<(), CliError> {
     let input_file = fs::read_to_string(file_path)?;
     let parsed = MarkdownParser::parse(Rule::doc, &input_file)?;
     println!("{:#?}", parsed);
     Ok(())
 }
-fn main() -> Result<()> {
+fn main() -> Result<(), CliError> {
     let args: Vec<String> = std::env::args().collect();
     if args.len() < 2 {
         help();
@@ -42,8 +52,7 @@ fn main() -> Result<()> {
         }
         parse_file(&args[2])?;
     } else {
-        eprintln!("try again it's not valid : {}", com);
-        help();
+        return Err(CliError::InvalidCommand(com.clone()));
     }
     Ok(())
 }
