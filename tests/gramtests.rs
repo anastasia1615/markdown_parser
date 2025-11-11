@@ -1,4 +1,4 @@
-use markdown_parser::*;
+use zrznklbbk_markdown_parser::*;
 use pest::Parser;
 
 #[cfg(test)]
